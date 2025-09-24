@@ -1,0 +1,72 @@
+name: TaskApp CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # ---------------- Backend ----------------
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 22
+
+      - name: Build backend
+        working-directory: ./backend
+        run: mvn clean install -DskipTests
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: mvn test
+
+      - name: Start backend server in background
+        working-directory: ./backend
+        run: |
+          nohup mvn spring-boot:run > backend.log 2>&1 &
+          sleep 15
+      # ---------------- Frontend ----------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 23
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Start frontend server in background
+        working-directory: ./frontend
+        run: |
+          nohup npm run preview > frontend.log 2>&1 &
+          sleep 15
+      - name: Setup Chrome for Selenium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          # Clean up any leftover Chrome user data directories
+          rm -rf /tmp/selenium_* || true
+      
+      - name: Run Selenium tests
+        working-directory: ./frontend
+        run: npm run test:selenium
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend Logs ==="
+          cat backend/backend.log || echo "No backend log found"
+          echo "=== Frontend Logs ==="
+          cat frontend/frontend.log || echo "No frontend log found"
