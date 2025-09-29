@@ -18,11 +18,9 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-<<<<<<< HEAD
-          java-version: 17
-=======
+
           java-version: 17  # Updated JDK version to 17
->>>>>>> 3bf474a835e76ea4b8650f88938bbd5d333c91c4
+
 
       - name: Build backend
         working-directory: ./backend
