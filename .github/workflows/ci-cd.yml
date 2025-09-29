@@ -30,11 +30,7 @@ jobs:
         working-directory: ./backend
         run: mvn test
 
-      - name: Start backend server in background
-        working-directory: ./backend
-        run: |
-          nohup mvn spring-boot:run > backend.log 2>&1 &
-          sleep 15
+    
 
       # ---------------- Frontend ----------------
       - name: Set up Node.js
