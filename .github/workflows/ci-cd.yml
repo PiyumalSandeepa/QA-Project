@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 22
+          java-version: 17  # Updated JDK version to 17
 
       - name: Build backend
         working-directory: ./backend
@@ -128,7 +128,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 22
+          java-version: 17  # Updated JDK version to 17
 
       - name: Build backend for production
         working-directory: ./backend
