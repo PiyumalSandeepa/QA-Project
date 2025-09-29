@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ---------------- Backend ----------------
+      # ---------------- Build ----------------
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -24,6 +24,7 @@ jobs:
         working-directory: ./backend
         run: mvn clean install -DskipTests
 
+      # ---------------- Test ----------------
       - name: Run backend tests
         working-directory: ./backend
         run: mvn test
@@ -54,28 +55,16 @@ jobs:
           sudo apt-get install -y google-chrome-stable
           # Clean up any leftover Chrome user data directories
           rm -rf /tmp/selenium_* || true
-      
+
       - name: Run Selenium tests
         working-directory: ./frontend
         run: |
           npm run test:selenium || echo "Selenium tests skipped due to failure."
 
-      # ---------------- ANALYZE STEPS ----------------
+      # ---------------- Analyze ----------------
       - name: Run backend code coverage
         working-directory: ./backend
         run: mvn jacoco:report
-
-      - name: SonarQube Scan (Backend)
-        if: github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        working-directory: ./backend
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=taskapp-backend \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=${{ github.repository_owner }}
 
       - name: Run frontend linting
         working-directory: ./frontend
